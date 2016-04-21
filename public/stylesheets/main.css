@@ -1,0 +1,31 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+
+#wrapper{
+	margin:0 auto;
+	height: 100vh;
+	width: 100%;
+}
+
+#menu{
+	overflow: auto;
+	float: left;
+	height: 100%;
+	width: 20%;
+	background: #f2f2f2;
+}
+	#menu li{
+		font-size: 18px;
+	}
+
+#lyrics{
+	float: right;
+	height: 100%;
+	width: 79%;
+}
+
+.playing{
+	background: #ff00ff;
+}

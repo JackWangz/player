@@ -1,0 +1,175 @@
+<html ng-app="Player">
+<head>
+	<meta charset="UTF-8">
+	<title>Player</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+	<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+	<script src="//www.google.com/jsapi"></script>
+	<script src="javascripts/main.js"></script>
+	<script src="javascripts/search.js"></script>
+	<link rel="stylesheet" href="stylesheets/main.css">
+</head>
+<body>
+
+	<!-- Wrapper -->
+		<div id="wrapper">
+			<!-- Menu -->
+				<div id="menu" ng-controller="MenuController as menu">
+					<ul>
+						<li ng-repeat="song in menu.songList">
+							<span><a href="#" data-path="{{song.filepath}}" ng-click="menu.changeSong($event)" class="songItem">{{song.name}} - {{song.singer}}</a></span>
+						</li>
+					</ul>
+				</div>
+			<!-- Lyrics -->
+				<div id="lyrics">
+					<!-- <audio id="player" src="resources/Insomnia.mp3" controls></audio> -->
+					<div id="player"></div>
+					<div class="pre-auth">
+						<input id="login-link" type="button" value="authorize">
+					</div>
+					
+					<div id="buttons">
+						<label>
+							<input id="query" type="text" value="cats">
+							<button id="search-button" disabled onclick="search()">Search</button>
+						</label>
+					</div>
+					
+					<div id="search-container"></div>
+					
+					<div class="post-auth" style="visibility: hidden;">
+						<p>ok!</p>
+					</div>
+				</div>
+			<!-- Footer -->
+		</div>
+<script>
+	/**
+	 * Google API
+	 */
+		// gapi.client.load('plus', 'v1').then(function() {
+		// 	gapi.client.plus.activities.search({'query': 'wiki', 'orderBy': 'best'}).then(function(resp) {
+		// 		console.log(resp);
+		// 	}, function(reason) {
+		// 		console.log('Error: ' + reason.result.error.message);
+		// 	});
+		//  console.log('loaded.');
+		// });
+		
+		
+		// var restRequest = gapi.client.request({
+		// 	'path': '/plus/v1/activities',
+		// 	'params': {'query': 'Google+', 'orderBy': 'best'}
+		// });
+		// 	restRequest.then(function(resp) {
+		// 	console.log(resp.result);
+		// }, function(reason) {
+		// 	console.log('Error: ' + reason.result.error.message);
+		// });
+		var apiKey = 'AIzaSyBHxqtXXsEZKOAHH1MD3Qn-os_JEo1iD3c';
+		var OAUTH2_CLIENT_ID = '883559549059-vl9rnd2r1stqp4r96h6qfsapuk290o3a.apps.googleusercontent.com';
+		var OAUTH2_SCOPES = [
+			'https://www.googleapis.com/auth/youtube'
+		];
+
+		// Upon loading, the Google APIs JS client automatically invokes this callback.
+		googleApiClientReady = function() {
+			gapi.auth.init(function() {
+				window.setTimeout(checkAuth, 1);
+			});
+		}
+		
+		// Attempt the immediate OAuth 2.0 client flow as soon as the page loads.
+		// If the currently logged-in Google Account has previously authorized
+		// the client specified as the OAUTH2_CLIENT_ID, then the authorization
+		// succeeds with no user intervention. Otherwise, it fails and the
+		// user interface that prompts for authorization needs to display.
+		function checkAuth() {
+			gapi.auth.authorize({
+				client_id: OAUTH2_CLIENT_ID,
+				scope: OAUTH2_SCOPES,
+				immediate: true
+			}, handleAuthResult);
+		}
+
+		// Handle the result of a gapi.auth.authorize() call.
+		function handleAuthResult(authResult) {
+			if (authResult && !authResult.error) {
+				// Authorization was successful. Hide authorization prompts and show
+				// content that should be visible after authorization succeeds.
+				$('.pre-auth').hide();
+				$('.post-auth').show();
+				loadAPIClientInterfaces();
+			} else {
+				// Make the #login-link clickable. Attempt a non-immediate OAuth 2.0
+				// client flow. The current function is called when that flow completes.
+				$('#login-link').click(function() {
+					gapi.auth.authorize({
+						client_id: OAUTH2_CLIENT_ID,
+						scope: OAUTH2_SCOPES,
+						immediate: false
+					}, handleAuthResult);
+				});
+			}
+		}
+
+		// Load the client interfaces for the YouTube Analytics and Data APIs, which
+		// are required to use the Google APIs JS client. More info is available at
+		// https://developers.google.com/api-client-library/javascript/dev/dev_jscript#loading-the-client-library-and-the-api
+		function loadAPIClientInterfaces() {
+			gapi.client.load('youtube', 'v3', function() {
+				handleAPILoaded();
+				// console.log('loaded');
+			});
+		}
+		
+	// var tag = document.createElement('script');
+
+	// tag.src = "https://www.youtube.com/iframe_api";
+	// var firstScriptTag = document.getElementsByTagName('script')[0];
+	// firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+	// var player;
+	// function onYouTubeIframeAPIReady() {
+	// 	player = new YT.Player('player', {
+	// 		height: '390',
+	// 		width: '640',
+	// 		videoId: 'M7lc1UVf-VE',
+	// 		events: {
+	//             'onReady': onPlayerReady,
+	//             'onStateChange': onPlayerStateChange
+    //       	}
+	// 	});
+	// }
+
+	// function onPlayerReady(event) {
+	// 	event.target.playVideo();
+	// }
+
+	// var done = false;
+	// function onPlayerStateChange(event) {
+	// 	console.log(player.getVideoLoadedFraction());
+	// 	if (event.data == YT.PlayerState.PLAYING && !done) {
+			
+	// 		// setTimeout(stopVideo, 500);
+	// 		done = true;
+	// 		player.loadPlaylist({
+	// 							 list: '小幸運',
+	// 							 listType: 'search',
+	// 							 index: 0,
+	// 							 startSeconds: 0,
+	// 							 suggestedQuality: 'small' });
+								 
+	// 		console.log(player.getVideoLoadedFraction());
+	// 	}
+	// }
+
+	// function stopVideo() {
+	// 	player.stopVideo();
+	// }
+</script>
+
+<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
+</body>
+</html>
