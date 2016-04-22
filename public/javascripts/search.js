@@ -12,43 +12,9 @@ function search() {
   });
 
   request.execute(function(response) {
-    var str = JSON.stringify(response.result);
-    console.log(response.result.items[0].id.videoId);
+    // var str = JSON.stringify(response.result);
     var vId = response.result.items[0].id.videoId;
-    // $('#search-container').html('<pre>' + str + '</pre>');
-    
-    
-    var tag = document.createElement('script');
-    
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-    var player;
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('player', {
-        height: '390',
-        width: '640',
-        videoId: 'M7lc1UVf-VE',
-        events: {
-                'onReady': onPlayerReady,
-                'onStateChange': onPlayerStateChange
-              }
-      });
-    }
-
-    function onPlayerReady(event) {
-    
-      event.target.playVideo();
-    }
-
-    var done = false;
-    function onPlayerStateChange(event) {
-
-    }
-
-    function stopVideo() {
-      player.stopVideo();
-    }
+    // Set video from searching result
+    player.setVideo(vId);
   });
 }

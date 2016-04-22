@@ -16,6 +16,8 @@ function loadLyrics() {
 
 }
 
+
+
 // Create the XHR object.
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
@@ -76,54 +78,52 @@ function httpGetAsync(url, callback) {
 	xmlHttp.send(null);
 }
 
-app.controller('MenuController', function(){
+// Menu Controller
+app.controller('MenuController', ['$scope', function($scope) {
 	var menu = this;
 
-	menu.songList = [
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Miss you', singer:'No Name'	  , filepath:'resources/藍色蝴蝶Remix.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'},
-		{name:'Insomnia', singer:'Craig David', filepath:'resources/Insomnia.mp3'}];
+	$scope.videoList = [
+		{videoId: 'tntOCGkgt98', videoTitle: 'Funny Cats ', channelId: 'UCMW0kSYo44uRxvE21JqEWTQ', channelTitle: 'Forget Your Sadness'}
+		];
 
-	// Change the current song
-	menu.changeSong = function(e) {
+	// Change the current video
+	menu.changeVideo = function(e) {
 		var target = $(e.target),
 			filePath = target.data('path');
 		// Play music
-		loadAndPlayMusic(target, filePath);
+		// loadAndPlayMusic(target, filePath);
 	};
-});
+}]);
 
+// Search Controller
+app.controller('SearchController', ['$scope', function($scope) {
+	var search = this;
+	
+	search.searchVideo = function(e) {
+		var q = $('#query').val();
+		var request = gapi.client.youtube.search.list({
+			q: q,
+			part: 'snippet'
+		});
+
+		request.execute(function(response) {
+			// var str = JSON.stringify(response.result);
+			
+			for(var item in response.result.items){
+				$scope.videoList.push({
+					videoId: item.id.videoId,
+					videoTitle: item.snippet.title,
+					channelId:  item.snippet.channelId,
+					channelTitle: item.snippet.channelTitle
+				});
+			}
+			
+			var vId = response.result.items[0].id.videoId;
+			// Set video from searching result
+			player.setVideo(vId);
+		});
+	};
+}]);
 
 /*
  *
@@ -146,26 +146,25 @@ $(document).ready(function() {
 	// });
 
 
-function httpGet(theUrl)
-{
-    if (window.XMLHttpRequest)
-    {// code for IE7+, Firefox, Chrome, Opera, Safari
-        xmlhttp=new XMLHttpRequest();
-    }
-    else
-    {// code for IE6, IE5
-        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-    }
-    xmlhttp.onreadystatechange=function()
-    {
-        if (xmlhttp.readyState==4 && xmlhttp.status==200)
-        {
-            return xmlhttp.responseText;
-        }
-    }
-    xmlhttp.open("GET", theUrl, true);
-    xmlhttp.send();    
-}
+	function httpGet(theUrl){
+		if (window.XMLHttpRequest)
+		{// code for IE7+, Firefox, Chrome, Opera, Safari
+			xmlhttp=new XMLHttpRequest();
+		}
+		else
+		{// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function()
+		{
+			if (xmlhttp.readyState==4 && xmlhttp.status==200)
+			{
+				return xmlhttp.responseText;
+			}
+		}
+		xmlhttp.open("GET", theUrl, true);
+		xmlhttp.send();    
+	}
 
 // httpGet("http://stackoverflow.com/");
 	// httpGetAsync('http://www.metrolyrics.com/search.html?search=craig+david', function(){

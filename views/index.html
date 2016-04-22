@@ -7,7 +7,7 @@
 	<script src="//www.google.com/jsapi"></script>
 	<script src="javascripts/main.js"></script>
 	<script src="javascripts/search.js"></script>
-	<script src="javascripts/player.js"></script>
+	<!--<script src="javascripts/player.js"></script>-->
 	<script src="javascripts/auth.js"></script>
 	<link rel="stylesheet" href="stylesheets/main.css">
 </head>
@@ -17,8 +17,11 @@
 			<!-- Menu -->
 				<div id="menu" ng-controller="MenuController as menu">
 					<ul>
-						<li ng-repeat="song in menu.songList">
-							<span><a href="#" data-path="{{song.filepath}}" ng-click="menu.changeSong($event)" class="songItem">{{song.name}} - {{song.singer}}</a></span>
+						<li ng-repeat="video in videoList">
+							<div>
+								<span><a href="#" ng-click="menu.changeVideo($event)" class="songItem">{{video.videoTitle}}</a></span>
+								<span>Channel:{{video.channelTitle}}</span>
+							</div>
 						</li>
 					</ul>
 				</div>
@@ -30,10 +33,10 @@
 						<input id="login-link" type="button" value="authorize">
 					</div>
 					
-					<div id="buttons">
+					<div id="buttons" ng-controller="SearchController as search">
 						<label>
 							<input id="query" type="text" value="cats">
-							<button id="search-button" disabled onclick="search()">Search</button>
+							<button id="search-button" disabled ng-click="search.searchVideo($event)">Search</button>
 						</label>
 					</div>
 					
@@ -46,10 +49,18 @@
 			<!-- Footer -->
 		</div>
 <script>
-
+	var tag = document.createElement('script');
+			
+	tag.src = "https://www.youtube.com/iframe_api";
+	var firstScriptTag = document.getElementsByTagName('script')[0];
+	firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+	
+	function onYouTubeIframeAPIReady() {
+		player.setPlayer();
+	}
 </script>
 
 <script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
-<script src="https://apis.google.com/js/client.js?onload=onYouTubeIframeAPIReady"></script>
+<script src="javascripts/test.js"></script>
 </body>
 </html>
