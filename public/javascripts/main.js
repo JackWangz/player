@@ -16,8 +16,6 @@ function loadLyrics() {
 
 }
 
-
-
 // Create the XHR object.
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
@@ -83,13 +81,16 @@ app.controller('MenuController', ['$scope', function($scope) {
 	var menu = this;
 
 	$scope.videoList = [
-		{videoId: 'tntOCGkgt98', videoTitle: 'Funny Cats ', channelId: 'UCMW0kSYo44uRxvE21JqEWTQ', channelTitle: 'Forget Your Sadness'}
+		{videoId: 'tntOCGkgt98',
+		 videoTitle: 'Funny Cats ',
+		 videoUrl: 'https://youtu.be/aF4Icl31Ock',
+		 channelId: 'UCMW0kSYo44uRxvE21JqEWTQ',
+		 channelTitle: 'Forget Your Sadness'}
 		];
 
 	// Change the current video
-	menu.changeVideo = function(e) {
-		var target = $(e.target),
-			filePath = target.data('path');
+	menu.changeVideo = function(video) {
+		player.setVideo(video.videoId);
 		// Play music
 		// loadAndPlayMusic(target, filePath);
 	};
@@ -107,20 +108,25 @@ app.controller('SearchController', ['$scope', function($scope) {
 		});
 
 		request.execute(function(response) {
-			// var str = JSON.stringify(response.result);
-			
-			for(var item in response.result.items){
-				$scope.videoList.push({
+			var videoList = $scope.$$prevSibling.videoList;
+			// clear list
+			// videoList = [];
+			console.log(response.result.items);
+			for(var i = 0; i < response.result.items.length; i++) {
+				var item = response.result.items[i];
+				videoList.push({
 					videoId: item.id.videoId,
 					videoTitle: item.snippet.title,
+					videoUrl: 'https://youtu.be/'+item.id.videoId,
 					channelId:  item.snippet.channelId,
-					channelTitle: item.snippet.channelTitle
+					channelTitle: item.snippet.channelTitle,
 				});
 			}
 			
 			var vId = response.result.items[0].id.videoId;
+			$scope.$apply();
 			// Set video from searching result
-			player.setVideo(vId);
+			// player.setVideo(vId);
 		});
 	};
 }]);

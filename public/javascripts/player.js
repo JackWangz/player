@@ -8,11 +8,16 @@
 	var player = {};
 	var YTPlayer = player.YTPlayer = '';
 
+	var settings = {
+		height: '640',
+		width: '390'	
+	};
+	
 	// Set up YouTube player 
 	player.setPlayer = function() {
 		YTPlayer = new YT.Player('player', {
-			height: '390',
-			width: '640',
+			height: settings.height,
+			width: settings.width,
 			videoId: 'M7lc1UVf-VE',
 			events: {
 				'onReady': onPlayerReady,

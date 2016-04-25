@@ -12,6 +12,13 @@
 	<link rel="stylesheet" href="stylesheets/main.css">
 </head>
 <body>
+	<!-- Player -->
+		<div class="video">
+			<div class="video-container">
+				<div id="player"></div>
+			</div>
+		</div>
+	
 	<!-- Wrapper -->
 		<div id="wrapper">
 			<!-- Menu -->
@@ -19,16 +26,15 @@
 					<ul>
 						<li ng-repeat="video in videoList">
 							<div>
-								<span><a href="#" ng-click="menu.changeVideo($event)" class="songItem">{{video.videoTitle}}</a></span>
-								<span>Channel:{{video.channelTitle}}</span>
+								
+								<iframe src="{{video.videoUrl}}"></iframe>
+								<span><a href="#" ng-click="menu.changeVideo(video)" class="songItem" ng-bind="video.videoTitle"></a></span>
 							</div>
 						</li>
 					</ul>
 				</div>
 			<!-- Lyrics -->
 				<div id="lyrics">
-					<!-- <audio id="player" src="resources/Insomnia.mp3" controls></audio> -->
-					<div id="player"></div>
 					<div class="pre-auth">
 						<input id="login-link" type="button" value="authorize">
 					</div>
