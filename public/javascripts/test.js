@@ -3,6 +3,7 @@ var player = require('./player');
 
 window.player = player;
 //http://stackoverflow.com/questions/19059580/client-on-node-uncaught-referenceerror-require-is-not-defined
+
 },{"./player":2}],2:[function(require,module,exports){
 /**
  * Player.js
@@ -14,12 +15,17 @@ window.player = player;
 	var player = {};
 	var YTPlayer = player.YTPlayer = '';
 
+	var settings = {
+		height: '640',
+		width: '390'	
+	};
+	
 	// Set up YouTube player 
 	player.setPlayer = function() {
 		YTPlayer = new YT.Player('player', {
-			height: '390',
-			width: '640',
-			videoId: 'M7lc1UVf-VE',
+			height: settings.height,
+			width: settings.width,
+			videoId: '',
 			events: {
 				'onReady': onPlayerReady,
 				'onStateChange': onPlayerStateChange
@@ -27,13 +33,29 @@ window.player = player;
 		});
 	}
 
-	player.setVideo = function(vId) {
+	player.setVideo = function(videoId) {
 		YTPlayer.cueVideoById({
-			videoId: vId,
+			videoId: videoId,
 			startSeconds: 0,
 			suggestedQuality: 'large'  
 		});
-	}
+	};
+	
+	player.playVideo = function(videoId) {
+		YTPlayer.loadVideoById({
+			videoId: videoId,
+			startSeconds: 0,
+			suggestedQuality: 'large'  
+		});
+	};
+	
+	player.playList = function(listId) {
+		YTPlayer.loadPlaylist({
+			list: listId,
+			startSeconds: 0,
+			suggestedQuality: 'large'  
+		});
+	};
 
 	function onPlayerReady(event) {
 		event.target.playVideo();

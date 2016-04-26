@@ -1,16 +1,13 @@
 var app = angular.module('Player', []);
 
-function loadAndPlayMusic(songItem, songPath) {
-	var audio = $('#player'),
-		currentSong = $('.playing');
-
-	currentSong.removeClass('playing');
-	songItem.addClass('playing');
-
-	audio.attr('src', songPath);
-	audio.load();
-	audio.trigger('play');
-}
+app.config(function($sceDelegateProvider) {
+	$sceDelegateProvider.resourceUrlWhitelist([
+		'self',
+		'https://youtu.be/**',
+		'https://www.youtube.com/**',
+		'https://i.ytimg.com/vi/**'
+	]);
+});
 
 function loadLyrics() {
 
@@ -33,37 +30,6 @@ function createCORSRequest(method, url) {
   return xhr;
 }
 
-// Make the actual CORS request.
-function makeCorsRequest() {
-  // All HTML5 Rocks properties support CORS.
-  // var url = 'http://updates.html5rocks.com';
-
-  // var xhr = createCORSRequest('GET', url);
-  // if (!xhr) {
-  //   alert('CORS not supported');
-  //   return;
-  // }
-
-	var url = 'https://www.google.com.tw/';
-	var xhr = createCORSRequest('GET', url);
-	xhr.setRequestHeader('Access-Control-Allow-Origin', url);
-	xhr.setRequestHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-	xhr.setRequestHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept');
-	// xhr.send();
-
-  // Response handlers.
-  xhr.onload = function() {
-    var text = xhr.responseText;
-    var title = getTitle(text);
-    alert('Response from CORS request to ' + url + ': ' + title);
-  };
-
-  xhr.onerror = function() {
-    alert('Woops, there was an error making the request.');
-  };
-
-  xhr.send();
-}
 
 function httpGetAsync(url, callback) {
 	var xmlHttp = new XMLHttpRequest();
@@ -81,18 +47,21 @@ app.controller('MenuController', ['$scope', function($scope) {
 	var menu = this;
 
 	$scope.videoList = [
-		{videoId: 'tntOCGkgt98',
-		 videoTitle: 'Funny Cats ',
-		 videoUrl: 'https://youtu.be/aF4Icl31Ock',
-		 channelId: 'UCMW0kSYo44uRxvE21JqEWTQ',
-		 channelTitle: 'Forget Your Sadness'}
+		// {videoId: 'tntOCGkgt98',
+		//  videoTitle: 'Funny Cats ',
+		//  videoUrl: 'https://youtu.be/aF4Icl31Ock',
+		//  channelId: 'UCMW0kSYo44uRxvE21JqEWTQ',
+		//  channelTitle: 'Forget Your Sadness'}
 		];
 
 	// Change the current video
-	menu.changeVideo = function(video) {
-		player.setVideo(video.videoId);
-		// Play music
-		// loadAndPlayMusic(target, filePath);
+	menu.changeVideo = function(src) {
+		if(src.kind == 'video') {
+			player.playVideo(src.videoId);
+		} else if (src.kind == 'playlist') {
+			console.log(src.playlistId);
+			player.playList(src.playlistId);
+		}
 	};
 }]);
 
@@ -110,19 +79,49 @@ app.controller('SearchController', ['$scope', function($scope) {
 		request.execute(function(response) {
 			var videoList = $scope.$$prevSibling.videoList;
 			// clear list
-			// videoList = [];
-			console.log(response.result.items);
+			videoList.splice(0, videoList.length);
+			// console.log(response.result.items);
+			
 			for(var i = 0; i < response.result.items.length; i++) {
 				var item = response.result.items[i];
-				videoList.push({
-					videoId: item.id.videoId,
-					videoTitle: item.snippet.title,
-					videoUrl: 'https://youtu.be/'+item.id.videoId,
-					channelId:  item.snippet.channelId,
-					channelTitle: item.snippet.channelTitle,
-				});
+				
+				// Handle different kind of results 
+				if(item.id.kind == 'youtube#video') {
+					videoList.push({
+						kind        : item.id.kind.substr(8),
+						videoId     : item.id.videoId,
+						videoTitle  : item.snippet.title,
+						videoUrl    : 'https://youtu.be/'+item.id.videoId,
+						channelId   : item.snippet.channelId,
+						channelTitle: item.snippet.channelTitle,
+						thumbnails: {
+							default : item.snippet.thumbnails.default.url,
+							medium  : item.snippet.thumbnails.medium.url,
+							high    : item.snippet.thumbnails.high.url
+						}
+					});
+				} else if(item.id.kind == 'youtube#playlist') {
+					videoList.push({
+						kind         : item.id.kind.substr(8),
+						playlistId   : item.id.playlistId,
+						playlistTitle: item.snippet.title,
+						playlistUrl  : 'https://www.youtube.com/playlist?list='+item.id.playlistId,
+						channelId    : item.snippet.channelId,
+						channelTitle : item.snippet.channelTitle,
+						thumbnails: {
+							default : item.snippet.thumbnails.default.url,
+							medium  : item.snippet.thumbnails.medium.url,
+							high    : item.snippet.thumbnails.high.url
+						}
+					});
+				} else if(item.id.kind == 'youtube#channel') {
+				} else {
+					console.log('undefined kind');
+				}
+				
+
 			}
-			
+			console.log(videoList);
 			var vId = response.result.items[0].id.videoId;
 			$scope.$apply();
 			// Set video from searching result
@@ -139,18 +138,6 @@ app.controller('SearchController', ['$scope', function($scope) {
 $(document).ready(function() {
 	var songItem = $('.songItem'),
 		audioPlayer = $('#player');
-
-	// Ended event
-	// audioPlayer.on('ended', function(event) {
-	// 	event.preventDefault();
-
-	// 	var nextSong = currentSong.parents('li').next('li').find('span a'),
-	// 		nextSongPath = nextSong.data('path');
-	// 	// Play next song
-	// 	loadAndPlayMusic(nextSong, nextSongPath);
-	// 	loadLyrics();
-	// });
-
 
 	function httpGet(theUrl){
 		if (window.XMLHttpRequest)
@@ -172,8 +159,4 @@ $(document).ready(function() {
 		xmlhttp.send();    
 	}
 
-// httpGet("http://stackoverflow.com/");
-	// httpGetAsync('http://www.metrolyrics.com/search.html?search=craig+david', function(){
-	// 	console.log(123);
-	// });
 });

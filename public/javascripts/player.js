@@ -18,7 +18,7 @@
 		YTPlayer = new YT.Player('player', {
 			height: settings.height,
 			width: settings.width,
-			videoId: 'M7lc1UVf-VE',
+			videoId: '',
 			events: {
 				'onReady': onPlayerReady,
 				'onStateChange': onPlayerStateChange
@@ -26,20 +26,36 @@
 		});
 	}
 
-	player.setVideo = function(vId) {
+	player.setVideo = function(videoId) {
 		YTPlayer.cueVideoById({
-			videoId: vId,
+			videoId: videoId,
 			startSeconds: 0,
 			suggestedQuality: 'large'  
 		});
-	}
+	};
+	
+	player.playVideo = function(videoId) {
+		YTPlayer.loadVideoById({
+			videoId: videoId,
+			startSeconds: 0,
+			suggestedQuality: 'large'  
+		});
+	};
+	
+	player.playList = function(listId) {
+		YTPlayer.loadPlaylist({
+			list: listId,
+			startSeconds: 0,
+			suggestedQuality: 'large'  
+		});
+	};
 
 	function onPlayerReady(event) {
 		event.target.playVideo();
 	}
 
 	function onPlayerStateChange(event) {
-		console.log('state changed');
+		// console.log('state changed');
 	}
 
 	function stopVideo() {
